@@ -8,16 +8,130 @@
 
 import Cocoa
 import AVKit
+import AppKit
 import AVFoundation
 import CoreMedia
 
+extension NSImage {
+    var height: CGFloat {
+        return self.size.height
+    }
+    var width: CGFloat {
+        return self.size.width
+    }
+    var pngData: Data? {
+        guard let tiffRepresentation = tiffRepresentation, let bitmapImage = NSBitmapImageRep(data: tiffRepresentation) else { return nil }
+        return bitmapImage.representation(using: .PNG, properties: [:])
+    }
+    func pngWrite(to url: URL, options: Data.WritingOptions = .atomic) -> Bool {
+        do {
+            try pngData?.write(to: url, options: options)
+            return true
+        } catch {
+            print(error.localizedDescription)
+            return false
+        }
+    }
+    ///  Copies and crops an image to the supplied size.
+    ///  - parameter size: The size of the new image.
+    ///  - returns: The cropped copy of the given image.
+    func crop(size: NSSize) -> NSImage? {
+        // Resize the current image, while preserving the aspect ratio.
+        guard let resized = self.resizeWhileMaintainingAspectRatioToSize(size: size) else {
+            return nil
+        }
+        // Get some points to center the cropping area.
+        let x = floor((resized.width - size.width) / 2)
+        let y = floor((resized.height - size.height) / 2)
+        
+        // Create the cropping frame.
+        let frame = NSMakeRect(x, y, size.width, size.height)
+        
+        // Get the best representation of the image for the given cropping frame.
+        guard let rep = resized.bestRepresentation(for: frame, context: nil, hints: nil) else {
+            return nil
+        }
+        
+        // Create a new image with the new size
+        let img = NSImage(size: size)
+        
+        img.lockFocus()
+        defer { img.unlockFocus() }
+        
+        if rep.draw(in: NSMakeRect(0, 0, size.width, size.height),
+                    from: frame,
+                    operation: NSCompositingOperation.copy,
+                    fraction: 1.0,
+                    respectFlipped: false,
+                    hints: [:]) {
+            // Return the cropped image.
+            return img
+        }
+        
+        // Return nil in case anything fails.
+        return nil
+    }
+    ///  Copies the current image and resizes it to the given size.
+    ///  - parameter size: The size of the new image.
+    ///  - returns: The resized copy of the given image.
+    func copy(size: NSSize) -> NSImage? {
+        print("COPYING")
+        print(size)
+        // Create a new rect with given width and height
+        let frame = NSMakeRect(0, 0, size.width, size.height)
+        
+        // Get the best representation for the given size.
+        guard let rep = self.bestRepresentation(for: frame, context: nil, hints: nil) else {
+            return nil
+        }
+        
+        // Create an empty image with the given size.
+        let img = NSImage(size: size)
+        
+        // Set the drawing context and make sure to remove the focus before returning.
+        img.lockFocus()
+        defer { img.unlockFocus() }
+        
+        // Draw the new image
+        if rep.draw(in: frame) {
+            return img
+        }
+        
+        // Return nil in case something went wrong.
+        return nil
+    }
+    ///  Copies the current image and resizes it to the size of the given NSSize, while
+    ///  maintaining the aspect ratio of the original image.
+    ///  - parameter size: The size of the new image.
+    ///  - returns: The resized copy of the given image.
+    func resizeWhileMaintainingAspectRatioToSize(size: NSSize) -> NSImage? {
+        let newSize: NSSize
+        
+        let widthRatio  = size.width / self.width
+        let heightRatio = size.height / self.height
+        
+        if widthRatio > heightRatio {
+            newSize = NSSize(width: floor(self.width * widthRatio), height: floor(self.height * widthRatio))
+        } else {
+            newSize = NSSize(width: floor(self.width * heightRatio), height: floor(self.height * heightRatio))
+        }
+        
+        return self.copy(size: newSize)
+    }
+    
+    func resize(size: NSSize) -> NSImage? {
+        return self.copy(size: NSSize(width: size.width, height: size.height))
+    }
+}
 
 class ViewController: NSViewController, AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate, AVCaptureFileOutputRecordingDelegate {
     var webcam:AVCaptureDevice? = nil
+    var mic:AVCaptureDevice? = nil
     let videoOutput:AVCaptureVideoDataOutput = AVCaptureVideoDataOutput()
     let audioOutput:AVCaptureAudioDataOutput = AVCaptureAudioDataOutput()
     let movieOutput:AVCaptureMovieFileOutput = AVCaptureMovieFileOutput()
     let videoSession:AVCaptureSession = AVCaptureSession()
+    let audioSession:AVCaptureSession = AVCaptureSession()
     var videoPreviewLayer:AVCaptureVideoPreviewLayer? = nil
     var videoFilePath: URL? = nil
     
@@ -26,6 +140,7 @@ class ViewController: NSViewController, AVCaptureVideoDataOutputSampleBufferDele
     var webcamWritesCounter: Int = 0
     var detectionBoxView: NSView?
     var detectionBoxActive: Bool = false
+    var currentBuffer: CMSampleBuffer?
     
     let webcamDetectionQueue: DispatchQueue = DispatchQueue(label: "webcamDetection")
     //let webcamWriterQueue: DispatchQueue = DispatchQueue(label: "webCamWriter")
@@ -39,6 +154,7 @@ class ViewController: NSViewController, AVCaptureVideoDataOutputSampleBufferDele
     var avAsset: AVAsset? = nil
     var avAssetWriter: AVAssetWriter? = nil
     var avAssetWriterInput: AVAssetWriterInput? = nil
+    var avAudioAssetWriterInput: AVAssetWriterInput? = nil
     var streamFileCounter: Int = 0
     var streamingChannel: String = "0001"
     
@@ -48,11 +164,13 @@ class ViewController: NSViewController, AVCaptureVideoDataOutputSampleBufferDele
     let cmTimeScale: Int32 = 1000000000
     var currentRecordingTime: Int64 = 0
     
-    let stream: Stream = Stream()
+    let stream: CustomStream = CustomStream()
+    private let context = CIContext()
     
     @IBOutlet weak var playerPreview:NSView!
     @IBOutlet weak var videoPlayerView: NSView!
     @IBOutlet weak var btnCaptureWebcam: NSButton!
+    @IBOutlet weak var previewImage: NSImageView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,7 +183,7 @@ class ViewController: NSViewController, AVCaptureVideoDataOutputSampleBufferDele
         playerView.player = player
         videoPlayerView.addSubview(playerView)
         // Use a m3u8 playlist of live video
-        //let streamURL:URL = URL(string: "http://localhost:3000/videos/live/playlist")!
+        // let streamURL:URL = URL(string: "http://localhost:3000/videos/live/playlist")!
         // Encode and stream
         let streamURL: URL = URL(string: "http://localhost:3000/playlists/1")!
         startPlaying(from: streamURL)
@@ -82,8 +200,9 @@ class ViewController: NSViewController, AVCaptureVideoDataOutputSampleBufferDele
     }
     
     func captureOutput(_ captureOutput: AVCaptureOutput!, didOutputSampleBuffer sampleBuffer: CMSampleBuffer!, from connection: AVCaptureConnection!) {
+        currentBuffer = sampleBuffer
         currentRecordingTime = Int64(CMSampleBufferGetPresentationTimeStamp(sampleBuffer).seconds)
-        let imageBuffer: CVImageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
+//        let imageBuffer: CVImageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)!
         // Unlock the buffer
         //_ = CVPixelBufferLockBaseAddress(imageBuffer, CVPixelBufferLockFlags(rawValue: 0))
         // Bytes per row
@@ -91,16 +210,31 @@ class ViewController: NSViewController, AVCaptureVideoDataOutputSampleBufferDele
 //        let image = CVPixelBufferGetBaseAddress(imageBuffer)
         
         // Audio
-        //print(CMSampleBufferGetFormatDescription(sampleBuffer))
+//        print(CMSampleBufferGetFormatDescription(sampleBuffer))
         
         // Add to the buffer
         if (self.webcamSessionReady == false && webcamSessionStarted == true){
             self.avAssetWriterInput?.append(sampleBuffer)
         }
+    }
+    
+    @IBAction func takePhoto(_ sender: Any) {
+        return imageFromSampleBuffer(sampleBuffer: currentBuffer!);
+    }
+    
+    let desktopURL = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    
+    private func imageFromSampleBuffer(sampleBuffer: CMSampleBuffer) {
+        let imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer)
+        let ciImage = CIImage(cvPixelBuffer: imageBuffer!)
+        let cgImage = context.createCGImage(ciImage, from: ciImage.extent)
+        let nsImage = NSImage.init(cgImage: cgImage!, size: CGSize(width: 1280, height: 720));
+        previewImage.image = nsImage;
         
-        // Detection
-        if self.detectionBoxActive {
-            startImageDetection(imageBuffer: imageBuffer)
+        let imageFile = nsImage.resize(size: NSSize(width: 1280, height: 720));
+        let destinationURL = desktopURL.appendingPathComponent("swift-photo-\(Date()).png")
+        if imageFile!.pngWrite(to: destinationURL, options: .withoutOverwriting) {
+            print("File saved")
         }
     }
     
@@ -202,16 +336,27 @@ class ViewController: NSViewController, AVCaptureVideoDataOutputSampleBufferDele
     
     
     func setVideoSession(){
+        videoSession.beginConfiguration()
         // Set the device
         let devices = AVCaptureDevice.devices(withMediaType: AVMediaTypeVideo)!
-        webcam = devices[0] as? AVCaptureDevice
+        webcam = devices[1] as? AVCaptureDevice
+        print(devices)
+        
+//        let audioDevices = AVCaptureDevice.devices(withMediaType: AVMediaTypeAudio)!
+//        mic = audioDevices[0] as? AVCaptureDevice
+//        print(audioDevices)
         
         do {
             let webcamInput: AVCaptureDeviceInput = try AVCaptureDeviceInput(device: webcam)
+//            let micInput: AVCaptureDeviceInput = try AVCaptureDeviceInput(device: mic)
             if videoSession.canAddInput(webcamInput){
                 videoSession.addInput(webcamInput)
                 print("---> Adding webcam input")
             }
+//            if videoSession.canAddInput(micInput){
+//                videoSession.addInput(micInput)
+//                print("---> Adding mic input")
+//            }
         } catch let err as NSError {
             print("---> Error using the webcam: \(err)")
         }
@@ -221,6 +366,7 @@ class ViewController: NSViewController, AVCaptureVideoDataOutputSampleBufferDele
         videoSession.addOutput(videoOutput)
         videoSession.addOutput(audioOutput)
         videoSession.addOutput(movieOutput)
+        videoSession.commitConfiguration()
         // Register the sample buffer callback
         videoOutput.setSampleBufferDelegate(self, queue: videoPreviewQueue)
         // Audio
@@ -252,8 +398,8 @@ class ViewController: NSViewController, AVCaptureVideoDataOutputSampleBufferDele
         let bitsPerSecond: Float64 = numPixels * bitsPerPixel
         let avAssetWriterInputSettings: [String: Any] = [
             AVVideoCodecKey: AVVideoCodecH264,
-            AVVideoWidthKey: 480,
-            AVVideoHeightKey: 320,
+            AVVideoWidthKey: 1280,
+            AVVideoHeightKey: 720,
             AVVideoCompressionPropertiesKey: [
                 AVVideoAverageBitRateKey: bitsPerSecond,
                 AVVideoExpectedSourceFrameRateKey: 30,

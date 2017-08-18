@@ -1,15 +1,16 @@
 //
-//  Stream.swift
+//  CustomStream.swift
 //  WebCam
-//
-//  Created by Shavit Tzuriel on 11/13/16.
-//  Copyright © 2016 Shavit Tzuriel. All rights reserved.
 //
 
 import Foundation
 import Darwin
 
-class Stream {
+class CustomStream {
+    
+    init() {
+        
+    }
     
     let port = UInt16(3001)
     let INADDR_ANY = in_addr(s_addr: 0)
@@ -88,3 +89,4 @@ class Stream {
     }
     
 }
+

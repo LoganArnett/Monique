@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		029F36691F45C8AD005EE11D /* CustomStream.swift in Sources */ = {isa = PBXBuildFile; fileRef = 029F36681F45C8AD005EE11D /* CustomStream.swift */; };
 		DE9023931DD96211003A3D14 /* Stream.swift in Sources */ = {isa = PBXBuildFile; fileRef = DE9023921DD96211003A3D14 /* Stream.swift */; };
 		DEB6904B1DDCE2F20038BF5E /* DetectionBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB6904A1DDCE2F20038BF5E /* DetectionBoxView.swift */; };
 		DEBF36F21E4E0974000999B8 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEFAA13E1DB714A40013BEC0 /* ViewController.swift */; };
@@ -39,6 +40,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		029F36681F45C8AD005EE11D /* CustomStream.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomStream.swift; sourceTree = "<group>"; };
 		DE9023921DD96211003A3D14 /* Stream.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stream.swift; sourceTree = "<group>"; };
 		DEB68C481DDC0DC500F4B096 /* WebCam.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = WebCam.entitlements; sourceTree = "<group>"; };
 		DEB6904A1DDCE2F20038BF5E /* DetectionBoxView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DetectionBoxView.swift; sourceTree = "<group>"; };
@@ -114,6 +116,7 @@
 				DEFAA1421DB714A40013BEC0 /* Main.storyboard */,
 				DEFAA1451DB714A40013BEC0 /* Info.plist */,
 				DE9023921DD96211003A3D14 /* Stream.swift */,
+				029F36681F45C8AD005EE11D /* CustomStream.swift */,
 			);
 			path = WebCam;
 			sourceTree = "<group>";
@@ -204,7 +207,7 @@
 				TargetAttributes = {
 					DEFAA1381DB714A40013BEC0 = {
 						CreatedOnToolsVersion = 8.0;
-						DevelopmentTeam = M87Q25Q5K3;
+						DevelopmentTeam = 79W842HGGV;
 						ProvisioningStyle = Automatic;
 						SystemCapabilities = {
 							com.apple.Sandbox = {
@@ -278,6 +281,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DEB6904B1DDCE2F20038BF5E /* DetectionBoxView.swift in Sources */,
+				029F36691F45C8AD005EE11D /* CustomStream.swift in Sources */,
 				DEFAA13F1DB714A40013BEC0 /* ViewController.swift in Sources */,
 				DE9023931DD96211003A3D14 /* Stream.swift in Sources */,
 				DEFAA13D1DB714A40013BEC0 /* AppDelegate.swift in Sources */,
@@ -428,7 +432,7 @@
 				CODE_SIGN_ENTITLEMENTS = WebCam/WebCam.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = M87Q25Q5K3;
+				DEVELOPMENT_TEAM = 79W842HGGV;
 				INFOPLIST_FILE = WebCam/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.shavittzuriel.WebCam;
@@ -444,7 +448,7 @@
 				CODE_SIGN_ENTITLEMENTS = WebCam/WebCam.entitlements;
 				CODE_SIGN_IDENTITY = "Mac Developer";
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_TEAM = M87Q25Q5K3;
+				DEVELOPMENT_TEAM = 79W842HGGV;
 				INFOPLIST_FILE = WebCam/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/../Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.shavittzuriel.WebCam;

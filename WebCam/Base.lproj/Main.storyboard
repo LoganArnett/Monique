@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="11762" systemVersion="16E163f" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
+<document type="com.apple.InterfaceBuilder3.Cocoa.Storyboard.XIB" version="3.0" toolsVersion="13156.6" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES" initialViewController="B8D-0N-5wS">
     <dependencies>
         <deployment identifier="macosx"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="11762"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="13156.6"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
@@ -665,10 +665,17 @@
             <objects>
                 <windowController id="B8D-0N-5wS" sceneMemberID="viewController">
                     <window key="window" title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" releasedWhenClosed="NO" showsToolbarButton="NO" visibleAtLaunch="NO" animationBehavior="default" id="IQv-IB-iLA">
-                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+                        <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" fullSizeContentView="YES"/>
                         <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-                        <rect key="contentRect" x="196" y="240" width="480" height="270"/>
+                        <rect key="contentRect" x="231" y="169" width="1280" height="720"/>
                         <rect key="screenRect" x="0.0" y="0.0" width="1680" height="1027"/>
+                        <value key="minSize" type="size" width="1280" height="720"/>
+                        <value key="maxSize" type="size" width="1280" height="720"/>
+                        <value key="minFullScreenContentSize" type="size" width="1280" height="720"/>
+                        <value key="maxFullScreenContentSize" type="size" width="1920" height="1080"/>
+                        <connections>
+                            <outlet property="delegate" destination="B8D-0N-5wS" id="wYD-VZ-53I"/>
+                        </connections>
                     </window>
                     <connections>
                         <segue destination="XfG-lQ-9wD" kind="relationship" relationship="window.shadowedContentViewController" id="WJG-sv-lbc"/>
@@ -683,14 +690,14 @@
             <objects>
                 <viewController id="XfG-lQ-9wD" customClass="ViewController" customModule="WebCam" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" wantsLayer="YES" id="m2S-Jp-Qdl">
-                        <rect key="frame" x="0.0" y="0.0" width="480" height="625"/>
-                        <autoresizingMask key="autoresizingMask"/>
+                        <rect key="frame" x="0.0" y="0.0" width="1280" height="720"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <customView translatesAutoresizingMaskIntoConstraints="NO" id="tJi-3s-627">
-                                <rect key="frame" x="0.0" y="342" width="480" height="283"/>
+                                <rect key="frame" x="440" y="60" width="400" height="600"/>
                             </customView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Urc-MN-c6c">
-                                <rect key="frame" x="-6" y="316" width="143" height="32"/>
+                                <rect key="frame" x="-6" y="-6" width="143" height="32"/>
                                 <buttonCell key="cell" type="push" title="Capture webcam" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="pDm-9e-M7f">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -699,11 +706,8 @@
                                     <action selector="CaptureWebCamVideo:" target="XfG-lQ-9wD" id="0hU-LP-MVp"/>
                                 </connections>
                             </button>
-                            <customView translatesAutoresizingMaskIntoConstraints="NO" id="IvV-WZ-6dQ">
-                                <rect key="frame" x="0.0" y="0.0" width="480" height="320"/>
-                            </customView>
                             <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="5v3-Ff-loK">
-                                <rect key="frame" x="387" y="316" width="99" height="32"/>
+                                <rect key="frame" x="1187" y="-6" width="99" height="32"/>
                                 <buttonCell key="cell" type="push" title="Detection" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="2iz-36-qVf">
                                     <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                     <font key="font" metaFont="system"/>
@@ -712,32 +716,59 @@
                                     <action selector="startImageDetectionAction" target="XfG-lQ-9wD" id="XU7-M3-3Ml"/>
                                 </connections>
                             </button>
+                            <customView ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="IvV-WZ-6dQ">
+                                <rect key="frame" x="0.0" y="0.0" width="1280" height="1"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="1" id="sqy-ZN-vd5"/>
+                                </constraints>
+                            </customView>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="mTe-dK-H7b">
+                                <rect key="frame" x="125" y="-6" width="70" height="32"/>
+                                <buttonCell key="cell" type="push" title="Snap" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="ChQ-Oj-GWn">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" size="13" name="Avenir-Book"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="takePhoto:" target="XfG-lQ-9wD" id="vJ0-9h-nKK"/>
+                                </connections>
+                            </button>
+                            <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="JN8-vI-qxC">
+                                <rect key="frame" x="0.0" y="0.0" width="1280" height="720"/>
+                                <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" id="jbm-ZC-U2V"/>
+                            </imageView>
                         </subviews>
                         <constraints>
-                            <constraint firstItem="Urc-MN-c6c" firstAttribute="leading" secondItem="IvV-WZ-6dQ" secondAttribute="leading" id="4ft-cu-nML"/>
-                            <constraint firstItem="IvV-WZ-6dQ" firstAttribute="top" secondItem="Urc-MN-c6c" secondAttribute="bottom" constant="3" id="64r-rC-arc"/>
-                            <constraint firstItem="tJi-3s-627" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" id="Fl2-7z-NXA"/>
-                            <constraint firstItem="tJi-3s-627" firstAttribute="leading" secondItem="Urc-MN-c6c" secondAttribute="leading" id="G81-Fx-aFr"/>
-                            <constraint firstItem="IvV-WZ-6dQ" firstAttribute="top" secondItem="tJi-3s-627" secondAttribute="bottom" constant="22" id="Lgu-TA-bB5"/>
+                            <constraint firstItem="tJi-3s-627" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" constant="440" id="1fv-eH-6FR"/>
+                            <constraint firstItem="JN8-vI-qxC" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" id="3kb-ef-gev"/>
+                            <constraint firstItem="IvV-WZ-6dQ" firstAttribute="top" secondItem="Urc-MN-c6c" secondAttribute="bottom" id="5r2-h4-us2"/>
+                            <constraint firstAttribute="bottom" secondItem="IvV-WZ-6dQ" secondAttribute="bottom" id="Cg0-Ch-6KT"/>
+                            <constraint firstAttribute="trailing" secondItem="5v3-Ff-loK" secondAttribute="trailing" id="Dvf-P5-jyX"/>
                             <constraint firstAttribute="bottom" secondItem="IvV-WZ-6dQ" secondAttribute="bottom" id="SKW-SG-JaX"/>
+                            <constraint firstItem="IvV-WZ-6dQ" firstAttribute="top" secondItem="mTe-dK-H7b" secondAttribute="bottom" id="T0S-gM-wz0"/>
                             <constraint firstItem="5v3-Ff-loK" firstAttribute="trailing" secondItem="IvV-WZ-6dQ" secondAttribute="trailing" id="U5u-rD-ugA"/>
-                            <constraint firstItem="Urc-MN-c6c" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="281" id="Wvr-3V-j1N"/>
-                            <constraint firstItem="tJi-3s-627" firstAttribute="trailing" secondItem="5v3-Ff-loK" secondAttribute="trailing" id="cW0-pY-W4Z"/>
-                            <constraint firstAttribute="trailing" secondItem="tJi-3s-627" secondAttribute="trailing" id="e6i-X1-3cz"/>
-                            <constraint firstItem="Urc-MN-c6c" firstAttribute="baseline" secondItem="5v3-Ff-loK" secondAttribute="baseline" id="jai-Nq-TlH"/>
-                            <constraint firstItem="tJi-3s-627" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" id="n5Z-S5-tx4"/>
+                            <constraint firstAttribute="bottom" secondItem="IvV-WZ-6dQ" secondAttribute="bottom" id="UTm-MT-S6D"/>
+                            <constraint firstItem="IvV-WZ-6dQ" firstAttribute="top" secondItem="tJi-3s-627" secondAttribute="bottom" constant="59" id="WRG-gS-EZf"/>
+                            <constraint firstItem="JN8-vI-qxC" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" id="Z9V-16-y6L"/>
+                            <constraint firstItem="mTe-dK-H7b" firstAttribute="leading" secondItem="Urc-MN-c6c" secondAttribute="trailing" id="b4F-VZ-IvA"/>
+                            <constraint firstItem="tJi-3s-627" firstAttribute="top" secondItem="m2S-Jp-Qdl" secondAttribute="top" constant="60" id="cGl-Qw-KD1"/>
+                            <constraint firstItem="IvV-WZ-6dQ" firstAttribute="top" secondItem="5v3-Ff-loK" secondAttribute="bottom" id="juB-OM-4l6"/>
+                            <constraint firstAttribute="trailing" secondItem="tJi-3s-627" secondAttribute="trailing" constant="440" id="lPp-qr-PFD"/>
+                            <constraint firstItem="Urc-MN-c6c" firstAttribute="leading" secondItem="m2S-Jp-Qdl" secondAttribute="leading" id="mrr-yx-aN9"/>
+                            <constraint firstAttribute="bottom" secondItem="JN8-vI-qxC" secondAttribute="bottom" id="pS8-yT-3Y0"/>
+                            <constraint firstAttribute="trailing" secondItem="JN8-vI-qxC" secondAttribute="trailing" id="s4P-Yi-VHm"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="btnCaptureWebcam" destination="Urc-MN-c6c" id="Yt7-6Q-7fh"/>
                         <outlet property="playerPreview" destination="tJi-3s-627" id="8sS-q9-poz"/>
+                        <outlet property="previewImage" destination="JN8-vI-qxC" id="yNw-LS-wSu"/>
                         <outlet property="videoPlayer" destination="IvV-WZ-6dQ" id="O8v-T3-IXI"/>
                         <outlet property="videoPlayerView" destination="IvV-WZ-6dQ" id="lNB-qL-bZT"/>
                     </connections>
                 </viewController>
                 <customObject id="rPt-NT-nkU" userLabel="First Responder" customClass="NSResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="75" y="853.5"/>
+            <point key="canvasLocation" x="75" y="853"/>
         </scene>
     </scenes>
 </document>
